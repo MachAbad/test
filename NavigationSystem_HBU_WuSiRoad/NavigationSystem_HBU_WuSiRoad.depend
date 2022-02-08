@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1637391917 source:e:\c++\navigationsystem_hbu_wusiroad\main.cpp
+	<iostream>
+	<algorithm>
+	<vector>
+	<stack>
+	<queue>
+	<set>
+	<map>
+

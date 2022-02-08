@@ -1,0 +1,590 @@
+#include <bits/stdc++.h>
+#include <string>
+#include <conio.h>
+#include <windows.h>
+
+#define MaxNum 128
+#define INF 9999
+using namespace std;
+
+//地点信息
+typedef struct Building
+{
+    int id;
+    string name;
+    string introduction;
+} Building, *ptrToBuilding;
+
+//邻接矩阵
+typedef struct AdjMatrix
+{
+    int edge[MaxNum][MaxNum];  //边信息（路径长度）
+    Building building[MaxNum]; //地点信息
+    int vNum, eNum;
+} AdjMatrix;
+
+//全局变量
+AdjMatrix G;
+int dist[MaxNum][MaxNum]; // Floyd算法，最短距离
+int path[MaxNum][MaxNum]; // Floyd算法，中转节点
+bool isAdministrator;     // 是否具有管理员权限
+bool createdALG = false;  // 是否已经建立邻接表
+
+// UI
+void Menu_Login();          // 登录界面
+void Menu_Administrator();  // 管理员界面
+void Menu_Tourist();        // 游客界面
+void Menu_return();         // 返回上一界面
+void Login_Administrator(); // 管理员登录后端操作
+void Login_Tourist();       // 游客登录后端操作
+void Out_ALL();             // 退出登录
+
+// 算法
+void CreateGraph();                 // 计算 创建邻接表，存储校园地图
+void Search_info_All();             // 输出 查询所有地点信息
+void Search_info(int x);            // 输出 查询指定地点信息
+void ShortestPath_Floyd();          // 计算 任意两点间的最短路径，Floyd算法
+void Search_path_All2All();         // 输出 查询任意两点间最短路径
+void Search_path_A2All(int x);      // 输出 查询某点到其它点间的最短路径
+void Search_path_A2B(int x, int y); // 输出 查询A点到B点的最短路径
+int Locate(string name);            // 计算 给定地点名称，返回对应的序号
+void Insert_Vex();                  // 计算 增加校园地点
+void Insert_Edge();                 // 计算 增加校园路径
+void Delete_Vex();                  // 计算 删除校园地点
+void Delete_Edge();                 // 计算 删除校园路径
+void Modify_info();                 // 计算 更新地点信息
+
+int main()
+{
+    Menu_Login();
+    return 0;
+}
+
+// UI
+void Menu_Login() // 登录界面
+{
+    printf("\n\t加载中，请稍后...");
+    // Sleep(1000);
+    system("cls");
+    printf("\n");
+    printf("\t _________________________________________________________\n");
+    printf("\t|                                                         |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|                欢迎使用河北大学校园导航系统             |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|                     请选择您的登录方式                  |\n");
+    printf("\t|               [1] 以游客身份进入                        |\n");
+    printf("\t|               [2] 以管理员身份登录                      |\n");
+    printf("\t|               [0] 退出系统                              |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|_________________________________________________________|\n");
+    printf("\n");
+    printf("\t请输入对应序号以使用相应功能：\n\t");
+    // freopen("a.txt", "r", stdin);
+    int n;
+    while (cin >> n && n != 0)
+    {
+        if (!createdALG)
+        {
+            CreateGraph();
+            createdALG = true;
+        }
+        switch (n)
+        {
+        case 1:
+            Login_Tourist();
+            isAdministrator = false;
+            break;
+        case 2:
+            Login_Administrator();
+            isAdministrator = true;
+            break;
+        default:
+            cout << "\t请输入0~2之间的数字：" << endl;
+            break;
+        }
+        // if (cin.get() == '\n')  break;
+    }
+    cout << "\n\t正在退出系统..." << endl;
+    Sleep(500);
+    exit(0);
+}
+void Menu_Administrator() // 管理员界面
+{
+    system("cls");
+    printf("\n");
+    printf("\t _________________________________________________________\n");
+    printf("\t|                                                         |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|               河北大学校园导航管系统管理员界面          |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|               [1] 查询某个地点信息                      |\n");
+    printf("\t|               [2] 查询所有地点信息                      |\n");
+    printf("\t|               [3] 修改地点信息                          |\n");
+    printf("\t|               [4] 去某地的最短路径查询                  |\n");
+    printf("\t|               [5] 去其它所有地点的最短路径查询          |\n");
+    printf("\t|               [6] 添加校园地点                          |\n");
+    printf("\t|               [7] 删除校园地点                          |\n");
+    printf("\t|               [8] 添加校园路径                          |\n");
+    printf("\t|               [9] 删除校园路径                          |\n");
+    printf("\t|               [0] 退出登录                              |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|_________________________________________________________|\n");
+    printf("\n");
+    printf("\t请输入指令：");
+    int n;
+    while (cin >> n && n != 0)
+    {
+        switch (n)
+        {
+        case 1:
+            cout << "111" << endl;
+            break;
+        case 2:
+            cout << "222" << endl;
+            break;
+        case 3:
+            cout << "333" << endl;
+            break;
+        case 4:
+            cout << "444" << endl;
+            break;
+        case 5:
+            cout << "555" << endl;
+            break;
+        case 6:
+            cout << "666" << endl;
+            break;
+        case 7:
+            cout << "777" << endl;
+        default:
+            cout << "000" << endl;
+            break;
+        }
+    }
+}
+void Menu_Tourist() // 游客界面
+{
+    system("cls");
+    printf("\n");
+    printf("\t _________________________________________________________\n");
+    printf("\t|                                                         |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|               河北大学校园导航管系统游客界面            |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|               [1] 查询某个地点信息                      |\n");
+    printf("\t|               [2] 查询所有地点信息                      |\n");
+    printf("\t|               [3] 去某地的最短路径查询                  |\n");
+    printf("\t|               [4] 去其它所有地点的最短路径查询          |\n");
+    printf("\t|               [0] 退出登录                              |\n");
+    printf("\t|                                                         |\n");
+    printf("\t|_________________________________________________________|\n");
+    printf("\n");
+    printf("\t请输入指令：");
+    int n;
+    while (cin >> n && n != 0)
+    {
+        switch (n)
+        {
+        case 1:
+            cout << "111" << endl;
+            break;
+        case 2:
+            cout << "222" << endl;
+            break;
+        case 3:
+            cout << "333" << endl;
+            break;
+        case 4:
+            cout << "444" << endl;
+            break;
+        default:
+            cout << "000" << endl;
+            break;
+        }
+    }
+}
+void Menu_return() // 返回上一界面
+{
+    if (isAdministrator)
+        Menu_Administrator();
+    else
+        Menu_Tourist();
+}
+void Login_Administrator() // 管理员登录后端操作
+{
+    Menu_Administrator();
+}
+void Login_Tourist() // 游客登录后端操作
+{
+    Menu_Tourist();
+}
+void Out_ALL() // 退出登录
+{
+    isAdministrator = false;
+    Menu_Login();
+}
+
+//算法
+void CreateGraph() // 计算 创建邻接表，存储校园地图
+{
+    int i, j, k, l;
+    freopen("mapInfo.txt", "r", stdin);
+    cin >> G.vNum >> G.eNum; //输入顶点数和边数
+    getchar();
+    for (i = 0; i <= G.vNum; i++) //创建邻接表顶点
+    {
+        G.building[i].id = i;
+        getline(cin, G.building[i].name);
+        getline(cin, G.building[i].introduction);
+    }
+    for (k = 0; k < G.eNum; k++)
+    {
+        cin >> i >> j >> l;
+        G.edge[i][j] = l;
+        G.edge[j][i] = l;
+    }
+}
+void Search_info_All() // 输出 查询所有地点信息
+{
+    for (int i = 1; i <= G.vNum; i++)
+        cout << "\t" << G.building[i].name << "：" << G.building[i].introduction << endl;
+    cout << "按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void Search_info(int x) // 输出 查询指定地点信息
+{
+    int n;
+    while (cin >> n && n != 0)
+    {
+        int i;
+        for (i = 1; i <= G.vNum; i++)
+            if (G.building[i].id == x)
+            {
+                cout << "\t" << G.building[i].name << "：" << G.building[i].introduction << endl;
+                break;
+            }
+        if (i > G.vNum)
+            cout << "\t无此地点，请重新输入（放弃查询请输入0）：" << endl;
+    }
+    cout << "按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void ShortestPath_Floyd() // 计算 任意两点间的最短路径，Floyd算法
+{
+    // path[i][j]=k 记录中转结点
+    // dist[i][j]=sum 记录最短距离
+    int i, j, k, temp;
+    //初始化
+    for (i = 1; i <= G.vNum; i++)
+    {
+        for (j = 1; j <= G.vNum; j++)
+        {
+            dist[i][j] = INF;
+            path[i][j] = j;
+        }
+        dist[i][i] = 0;
+    }
+    //算法核心
+    for (k = 1; k <= G.vNum; k++)
+    {
+        for (i = 1; i <= G.vNum; i++)
+        {
+            for (j = 1; j <= G.vNum; j++)
+            {
+                temp = (dist[i][k] == INF || dist[k][j] == INF) ? INF : (dist[i][k] + dist[k][j]);
+                if (dist[i][j] > temp)
+                {
+                    dist[i][j] = temp;
+                    path[i][j] = k;
+                }
+            }
+        }
+    }
+}
+void Search_path_All2All() // 输出 查询任意两点间最短路径
+{
+    int i, j, k, l = 1;
+    cout << "\t任意两点间最短路径搜索结果：" << endl;
+    for (i = 1; i <= G.vNum; i++)
+    {
+        for (j = 1; j <= G.vNum; j++)
+        {
+            if (i != j)
+            {
+                cout << "\t" << l++ << ":" << endl;
+                cout << "\t" << G.building[i].name << " 到 " << G.building[i].name << " 的最短路径长度为：" << dist[i][j] << "米。" << endl;
+                cout << "\t路径为：" << G.building[j].name;
+                if (path[i][j] == j)
+                    cout << " <- " << G.building[i].name << endl;
+                else
+                {
+                    k = j;
+                    while (path[i][k] != k)
+                    {
+                        k = path[i][k];
+                        cout << " <- " << G.building[k].name;
+                    }
+                    cout << " <- " << G.building[i].name << endl;
+                }
+            }
+        }
+    }
+    cout << "按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void Search_path_A2All(int x) // 输出 查询某点到其它点间的最短路径
+{
+    int i, j, k;
+    string name;
+    cout << "\t请输入起点：";
+    getline(cin, name);
+    i = Locate(name);
+    if (i)
+    {
+        cout << "\t" << G.building[x].name << " 到其它地点的最短路径查询结果：" << endl;
+        for (j = 1; j <= G.vNum; j++)
+        {
+            if (i != j)
+            {
+                cout << "\t" << G.building[i].name << " 到 " << G.building[j].name << " 的最短路径长度为：" << dist[i][j] << "米。" << endl;
+                cout << "\t路径为：" << G.building[j].name;
+                if (path[i][j] == j)
+                    cout << " <- " << G.building[i].name << endl;
+                else
+                {
+                    k = j;
+                    while (path[i][k] != k)
+                    {
+                        k = path[i][k];
+                        cout << " <- " << G.building[k].name;
+                    }
+                    cout << " <- " << G.building[i].name << endl;
+                }
+            }
+        }
+        /*
+        for (i = 1; i <= G.vNum; i++)
+        {
+            for (j = 1; j <= G.vNum; j++)
+            {
+                if (i == x && i != j)
+                {
+                    cout << "\t" << G.building[i].name << " 到 " << G.building[j].name << " 的最短路径长度为：" << dist[i][j] << "米。" << endl;
+                    cout << "\t路径为：" << G.building[j].name;
+                    if (path[i][j] == j)
+                        cout << " <- " << G.building[i].name << endl;
+                    else
+                    {
+                        k = j;
+                        while (path[i][k] != k)
+                        {
+                            k = path[i][k];
+                            cout << " <- " << G.building[k].name;
+                        }
+                        cout << " <- " << G.building[i].name << endl;
+                    }
+                }
+            }
+        }
+        */
+    }
+    else
+        cout << "起点或终点错误。" << endl;
+    cout << "按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+    cout << "按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void Search_path() // 输出 查询A点到B点的最短路径
+{
+    int i, j, k, x, y;
+    string name;
+    cout << "\t请输入起点：";
+    getline(cin, name);
+    x = Locate(name);
+    cout << "\t请输入终点：";
+    getline(cin, name);
+    y = Locate(name);
+    if (x && y)
+    {
+        cout << "\t" << G.building[x].name << " 到 " << G.building[y].name << " 的最短路径查询结果：" << endl;
+        for (i = 1; i <= G.vNum; i++)
+        {
+            for (j = 1; j <= G.vNum; j++)
+            {
+                if (i == x && j == y)
+                {
+                    cout << "\t" << G.building[i].name << " 到 " << G.building[j].name << " 的最短路径长度为：" << dist[i][j] << "米。" << endl;
+                    cout << "\t路径为：" << G.building[j].name;
+                    if (path[i][j] == j)
+                        cout << " <- " << G.building[i].name << endl;
+                    else
+                    {
+                        k = j;
+                        while (path[i][k] != k)
+                        {
+                            k = path[i][k];
+                            cout << " <- " << G.building[k].name;
+                        }
+                        cout << " <- " << G.building[i].name << endl;
+                    }
+                }
+            }
+        }
+    }
+    else
+        cout << "起点或终点错误。" << endl;
+    cout << "按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+int Locate(string name) // 计算 给定地点名称，返回对应的序号
+{
+    for (int i = 1; i <= G.vNum; i++)
+    {
+        if (G.building[i].name == name)
+            return i;
+    }
+    cout << "\t没找到 " << name << endl;
+    return 0;
+}
+void Insert_Vex() // 计算 增加校园地点
+{
+    if (G.vNum >= MaxNum)
+    {
+        cout << "\t已达到存储地点的上限，无法存储。按任意键返回..." << endl;
+        getchar();
+        return;
+    }
+    int i = G.vNum + 1;
+    G.building[i].id = i;
+    cout << "\t请输入地点名称：";
+    getline(cin, G.building[i].name);
+    cout << "\t请输入地点简介：";
+    getline(cin, G.building[i].introduction);
+    G.vNum++;
+    cout << "\t成功增加地点：" << G.building[i].name << "\n\t按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void Insert_Edge() // 计算 增加校园路径
+{
+    int n;
+    do
+    {
+        int i, j, l;
+        string name;
+        cout << "\t请输入路径的一个端点：" << endl;
+        getline(cin, name);
+        i = Locate(name);
+        cout << "\t请输入路径的另一个端点：" << endl;
+        getline(cin, name);
+        j = Locate(name);
+        cout << "\t请输入路径的长度（单位：米）：" << endl;
+        cin >> l;
+        G.edge[i][j] = l;
+        G.edge[j][i] = l;
+        G.eNum++;
+        cout << "\t成功增加路径" << endl;
+        cout << "\t是否继续增加路径？（继续增加请输入1，退出增加请输入0）\n\t" << endl;
+    } while (cin >> n && n != 0);
+    cout << "\t按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void Delete_Vex() // 计算 删除校园地点
+{
+    string name;
+    cout << "\t请输入要删除的地点：" << endl;
+    getline(cin, name);
+    int x = Locate(name);
+    if (x)
+    {
+        cout << "\t确认删除吗？确认请输入1，取消请输入0：\n\t" << endl;
+        int op;
+        cin >> op;
+        if (op)
+        {
+            for (int i = x; i < G.vNum; i++)
+            {
+                G.building[i] = G.building[i + 1];
+                for (int j = x; j < G.vNum; i++)
+                    G.edge[i][j] = G.edge[i + 1][j + 1];
+            }
+            G.vNum--;
+            cout << "\t已成功删除该路径。按任意键返回..." << endl;
+            CreateGraph();
+        }
+    }
+    else
+        cout << "\t无此地点。按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void Delete_Edge() // 计算 删除校园路径
+{
+    int i, j;
+    string name;
+    cout << "\t请输入要删除的路径连接的其中一个地点：" << endl;
+    getline(cin, name);
+    i = Locate(name);
+    cout << "\t请输入要删除的路径连接的另一个地点：" << endl;
+    getline(cin, name);
+    j = Locate(name);
+    if (i && j && G.edge[i][j] < INF)
+    {
+        cout << "\t确认删除吗？确认请输入1，取消请输入0：\n\t" << endl;
+        int op;
+        cin >> op;
+        if (op)
+        {
+            G.edge[i][j] = INF;
+            G.edge[j][i] = INF;
+            G.eNum--;
+            cout << "\t已成功删除该路径。按任意键返回..." << endl;
+            CreateGraph();
+        }
+    }
+    else
+        cout << "\t无此路径。按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}
+void Modify_info() // 计算 更新地点信息
+{
+    int i;
+    string name;
+    cout << "\t请输入要修改信息的地点名称：" << endl;
+    getline(cin, name);
+    i = Locate(name);
+    if (i)
+    {
+        cout << "\t[1]地点名称\n\t[2]地点简介\n\t请输入想更改的信息对应的序号（1~2）：" << endl;
+        int op;
+        cin >> op;
+        if (op == 1)
+        {
+            string name;
+            getline(cin, name);
+            G.building[i].name = name;
+            cout << "\t修改成功。按任意键返回..." << endl;
+        }
+        if (op == 2)
+        {
+            string intro;
+            getline(cin, intro);
+            G.building[i].introduction = intro;
+            cout << "\t修改成功。按任意键返回..." << endl;
+        }
+    }
+    else
+        cout << "无此地点。按任意键返回..." << endl;
+    getchar();
+    Menu_return();
+}

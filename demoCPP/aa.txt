@@ -1,0 +1,454 @@
+#include <iostream>
+#include <string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//二分查找
+#include <stdio.h>
+int Binary_search(int data[], int n, int kx)
+{
+    int mid, low = 0, high = n;
+    while(low<=high)
+    {
+        mid=low+(high-low)/2;
+        if(kx<data[mid])
+            high=mid-1;
+        else if(kx>data[mid])
+            low=mid+1;
+        else //kx==mid
+            return mid;
+    }
+    return 0;
+}
+int main()
+{
+    //freopen("a.txt", "r", stdin);
+    int n, m;
+    scanf("%d %d",&n,&m);
+    int a[n];
+    for (int i = 0; i < n; i++)
+        scanf("%d",a+i);
+    //sort(a, a + n);
+    for (int i = 0; i < m; i++)
+    {
+        if (i)
+            printf(" ");
+        int x, index;
+        scanf("%d",&x);
+        index = Binary_search(a, n, x);
+        printf("%d",index);
+    }
+    return 0;
+}
+
+//冒泡排序
+#include <iostream>
+#include <string.h>
+using namespace std;
+int main()
+{
+    int n, k;
+    int a[128];
+    cin >> n >> k;
+    for (int i = 0; i < n; i++)
+        cin >> a[i];
+    while (k--)
+    {
+        for (int i = 0; i < n - 1; i++)
+        {
+            if (a[i] > a[i + 1])
+            {
+                int t = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = t;
+            }
+        }
+    }
+    for (int i = 0; i < n; i++)
+    {
+        if (i)
+            cout << " ";
+        cout << a[i];
+    }
+    return 0;
+}
+
+//奥运排行榜
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Nation
+{
+    int id;
+    int gold;
+    int sum;
+    int population;
+    double aveGold;
+    double aveSum;
+};
+Nation nation[256];
+
+bool cmp_gold(const Nation &a, const Nation &b)
+{
+    return a.gold > b.gold;
+}
+bool cmp_sum(const Nation &a, const Nation &b)
+{
+    return a.sum > b.sum;
+}
+bool cmp_aveGold(const Nation &a, const Nation &b)
+{
+    return a.aveGold > b.aveGold;
+}
+bool cmp_aveSum(const Nation &a, const Nation &b)
+{
+    return a.aveSum > b.aveSum;
+}
+
+int main()
+{
+    //freopen("a.txt", "r", stdin);
+    int n, m;
+    cin >> n >> m;
+    for (int i = 0; i < n; i++)
+    {
+        nation[i].id = i;
+        cin >> nation[i].gold >> nation[i].sum >> nation[i].population;
+        nation[i].aveGold = nation[i].gold * 1.0 / nation[i].population;
+        nation[i].aveSum = nation[i].sum * 1.0 / nation[i].population;
+    }
+    int country[256];
+    for (int i = 0; i < m; i++)
+        cin >> country[i];
+
+    int order_gold[256];
+    int order_sum[256];
+    int order_aveGold[256];
+    int order_aveSum[256];
+    //金牌榜
+    sort(nation, nation + n, cmp_gold);
+    for (int i = 0; i < n; i++)
+    {
+        if (i == 0)
+            order_gold[nation[i].id] = 1;
+        else
+        {
+            if (nation[i].gold == nation[i - 1].gold)
+                order_gold[nation[i].id] = order_gold[nation[i - 1].id];
+            else
+                order_gold[nation[i].id] = i + 1;
+        }
+    }
+    //奖牌榜
+    sort(nation, nation + n, cmp_sum);
+    for (int i = 0; i < n; i++)
+    {
+        if (i == 0)
+            order_sum[nation[i].id] = 1;
+        else
+        {
+            if (nation[i].sum == nation[i - 1].sum)
+                order_sum[nation[i].id] = order_sum[nation[i - 1].id];
+            else
+                order_sum[nation[i].id] = i + 1;
+        }
+    }
+    //人均金牌榜
+    sort(nation, nation + n, cmp_aveGold);
+    for (int i = 0; i < n; i++)
+    {
+        if (i == 0)
+            order_aveGold[nation[i].id] = 1;
+        else
+        {
+            if (nation[i].aveGold == nation[i - 1].aveGold)
+                order_aveGold[nation[i].id] = order_aveGold[nation[i - 1].id];
+            else
+                order_aveGold[nation[i].id] = i + 1;
+        }
+    }
+    //人均奖牌榜
+    sort(nation, nation + n, cmp_aveSum);
+    for (int i = 0; i < n; i++)
+    {
+        if (i == 0)
+            order_aveSum[nation[i].id] = 1;
+        else
+        {
+            if (nation[i].aveSum == nation[i - 1].aveSum)
+                order_aveSum[nation[i].id] = order_aveSum[nation[i - 1].id];
+            else
+                order_aveSum[nation[i].id] = i + 1;
+        }
+    }
+    //printf("steady as she goes");
+    for (int i = 0; i < m; i++)
+    {
+        int plan = 0;
+        int mins = 256;
+        if (order_gold[country[i]] < mins)
+        {
+            plan = 1;
+            mins = order_gold[country[i]];
+        }
+        if (order_sum[country[i]] < mins)
+        {
+            plan = 2;
+            mins = order_sum[country[i]];
+        }
+        if (order_aveGold[country[i]] < mins)
+        {
+            plan = 3;
+            mins = order_aveGold[country[i]];
+        }
+        if (order_aveSum[country[i]] < mins)
+        {
+            plan = 4;
+            mins = order_aveSum[country[i]];
+        }
+
+        if (i)
+            cout << " ";
+        cout << mins << ":" << plan;
+    }
+    return 0;
+}
+
+//PTA排名汇总
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct student
+{
+    string id;
+    int score;
+    int position;
+    int order_in_position;
+    int order_in_all;
+};
+student stu[30001];
+
+bool cmp(const student &a, const student &b)
+{
+    if (a.score != b.score)
+        return a.score >= b.score;
+    else
+        return a.id < b.id;
+}
+
+int main()
+{
+    //freopen("a.txt", "r", stdin);
+    int n, p = 0;
+    scanf("%d", &n);
+    for (int i = 1; i <= n; i++)
+    {
+        int k;
+        cin >> k;
+        for (int j = 0; j < k; j++)
+        {
+            cin >> stu[p].id >> stu[p].score;
+            stu[p].position = i;
+            p++;
+        }
+        sort(stu + p - k, stu + p, cmp);
+        for (int j = 1; j <= k; j++)
+        {
+            int t = p - k + j - 1;
+            if (j == 1 || stu[t].score != stu[t - 1].score)
+                stu[t].order_in_position = j;
+            else //分数相同，排名不变
+                stu[t].order_in_position = stu[t - 1].order_in_position;
+        }
+    }
+    cout << p << endl;
+    sort(stu,stu+p,cmp);
+    for (int i = 0; i < p; i++)
+    {
+        if (i == 0 || stu[i].score != stu[i - 1].score)
+            stu[i].order_in_all = i+1;
+        else //分数相同，排名不变
+            stu[i].order_in_all = stu[i - 1].order_in_all;
+        cout << stu[i].id << " " << stu[i].order_in_all << " " << stu[i].position << " " << stu[i].order_in_position << endl;
+    }
+    return 0;
+}
+
+//搜索树判断
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef struct node *tree;
+struct node
+{
+    int data;
+    tree left;
+    tree right;
+};
+int n;
+int pre[1005], flag1 = 1, flag2 = 1;
+int cnt = 0;
+void Print(tree t)
+{
+    if (t)
+    {
+        Print(t->left);
+        Print(t->right);
+        if (cnt++)
+            cout << " ";
+        cout << t->data;
+    }
+}
+
+tree setTree(int pre[], int n)
+{
+    if (n <= 0)
+        return NULL;
+    tree t = new node;
+    t->data = pre[0];
+    int i, j;
+    for (i = 1; i < n; i++)
+        if (pre[i] >= t->data)
+            break;
+    for (j = i; j < n; j++)
+    {
+        if (pre[j] < t->data)
+        {
+            flag1 = 0;
+            return NULL;
+        }
+    }
+    t->left = setTree(pre + 1, i - 1);
+    t->right = setTree(pre + i, n - i);
+    return t;
+}
+
+tree setMirroTree(int pre[], int n)
+{
+    if (n <= 0)
+        return NULL;
+    tree t = new node;
+    t->data = pre[0];
+    int i, j;
+    for (i = 1; i < n; i++)
+        if (pre[i] < t->data)
+            break;
+    for (j = i; j < n; j++)
+    {
+        if (pre[j] >= t->data)
+        {
+            flag2 = 0;
+            return NULL;
+        }
+    }
+    t->left = setMirroTree(pre + 1, i - 1);
+    t->right = setMirroTree(pre + i, n - i);
+    return t;
+}
+
+int main()
+{
+    cin >> n;
+    for (int i = 0; i < n; i++)
+        cin >> pre[i];
+    tree t1, t2;
+    t1 = setTree(pre, n);
+    t2 = setMirroTree(pre, n);
+    if (t1 && flag1)
+    {
+        cout << "YES" << endl;
+        Print(t1);
+    }
+    else if (t2 && flag2)
+    {
+        cout << "YES" << endl;
+        Print(t2);
+    }
+    else
+        cout << "NO" << endl;
+    return 0;
+}
+
+//整型关键字的散列映射
+#include <iostream>
+using namespace std;
+int num[10005];
+int main()
+{
+    int a, b, n;
+    cin >> n >> b;
+    for (int i = 0; i < n; i++)
+    {
+        cin >> a;
+        int count = 0;
+        while (num[(a + count) % b] != a && num[(a + count) % b] != 0)
+            count++;
+        num[(a + count) % b] = a;
+        if (i > 0)
+            cout << " ";
+        cout << (a + count) % b;
+    }
+    return 0;
+}
+
+//打印选课学生名单
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+vector<string> course[2505];
+
+int main()
+{
+    //freopen("a.txt", "r", stdin);
+    int n, k;
+    scanf("%d %d", &n, &k);
+    for (int i = 0; i < n; i++)
+    {
+        char name[5];
+        scanf("%s", name);
+        int C;
+        scanf("%d", &C);
+        while (C--)
+        {
+            int t;
+            scanf("%d", &t);
+            course[t].push_back(name);
+        }
+    }
+    for (int i = 1; i <= k; i++)
+    {
+        printf("%d %d\n", i, course[i].size());
+        sort(course[i].begin(), course[i].end());
+        for (int j = 0; j < course[i].size(); j++)
+            printf("%s\n", course[i][j].c_str());
+    }
+    return 0;
+}

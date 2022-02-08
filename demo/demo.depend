@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1643357073 source:e:\c++\demo\main.cpp
+	<iostream>
+	<iostream>
+	<algorithm>
+	<queue>
+

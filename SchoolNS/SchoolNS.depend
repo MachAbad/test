@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1639284746 source:e:\c++\schoolns\main.cpp
+	<iostream>
+	<iomanip>
+	<string>
+	<stack>
+	<map>
+	<conio.h>
+	<windows.h>
+
